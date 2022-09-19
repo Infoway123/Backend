@@ -26,10 +26,8 @@ const protect =(req,res,next)=>{
            // res.status(401)
            // throw new Error("Not Authorized...")
            res.status(401).send("Not Authorized")
-        }
-        
-    }
-    
+        }        
+    }    
     if(!token)
     {
         console.log("No Token")

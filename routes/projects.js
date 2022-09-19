@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const Project=require('../models/project');
+const UUID = require('uuid');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -10,17 +11,22 @@ router.get('/', function(req, res, next) {
 router.post('/submit',(req,res)=>{
   console.log(req.body)
   // let obj={name:'shweta',surname:'kamble',salary:123344}
-   let obj=({name:req.body.Project.name,
+   /*let obj=({name:req.body.Project.name,
     creatorid:req.body.Project.creatorid,
     description:req.body.Project.description,
     requirements:req.body.Project.requirements,
     payment:req.body.Project.payment,
     status:req.body.Project.status,
     leaderid:req.body.Project.leaderid,
-    teamusers:req.body.Project.teamusers})
+    teamusers:req.body.Project.teamusers})*/
 
-    console.log(obj)
- const p1 =new Project(obj)
+
+    var project = {
+        ...req.body.Project,
+        projectid:generateUUID().toString(),
+    }
+ const p1 =new Project(project)
+ console.log(p1)
  p1.save((err, doc) => {
   if (!err)
       console.log('success'+ 'Project added successfully!');
@@ -35,6 +41,14 @@ router.post('/submit',(req,res)=>{
  })*/
  
 })
+
+const generateUUID =()=>{
+    const uuid = UUID.v4()
+    
+       return(
+        uuid.toString()
+       );
+  }
 
 router.get('/fetchdata',(req,res)=>{
   Project.find((err,data)=>{

@@ -1,6 +1,12 @@
 const mongoose=require('mongoose')
 const Project=new mongoose.Schema({
- 
+        
+        projectid:{
+        type:String,
+        required:[true],
+        minLength:[36],
+        maxLength:[36],
+    },
         name:{
             type:String,
             required:[true,"Please enter your name"],
@@ -9,8 +15,8 @@ const Project=new mongoose.Schema({
         creatorid:{
             type:String,
             required:[true],
-            minLength:[6],
-            maxLength:[6],
+            minLength:[36],
+            maxLength:[36],
         },
 
         description:{
@@ -21,6 +27,16 @@ const Project=new mongoose.Schema({
         },
 
         requirements:{
+            type:String,
+            required:[true],
+        },
+
+        projectDoc:{
+            type:String,
+           
+        },
+
+        technologies:{
             type:String,
             required:[true],
         },
@@ -39,8 +55,8 @@ const Project=new mongoose.Schema({
         leaderid:{
             type:String,
             required:[true,"Please enter leaderid"],
-            minLength:[6],
-            maxLength:[6],
+            minLength:[36],
+            maxLength:[36],
         },
 
         teamusers:{

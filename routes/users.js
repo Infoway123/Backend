@@ -6,6 +6,8 @@ var router = express.Router();
 const User=require('../models/user')
 const jwt = require('jsonwebtoken')
 const { protect } = require('../MiddleWares/AuthMiddleWare')
+const bcrypt = require('bcrypt')
+const UUID = require('uuid')
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -27,7 +29,7 @@ router.post('/submit',(req,res)=>{
     description:req.body.User.description,
   })*/
 
-  const user = req.body.User
+  var user = req.body.User
   //let email = obj.email
   /*const user= User.findOne({email})
      console.log(user)
@@ -61,9 +63,9 @@ router.post('/submit',(req,res)=>{
         })
       }
     })*/
-    console.log(user.email)
     
-  console.log(user.userid)
+    
+
     User.findOne({email:user.email})
     .then((userinfo)=>{
       if(userinfo != null) 
@@ -73,7 +75,17 @@ router.post('/submit',(req,res)=>{
       }
        else 
        {
-         const u1=new User(user)
+        let id=generateUUID()
+        user={
+          ...user,
+          userid:id,
+        }
+        console.log(id)
+         let u1=new User(user)
+         console.log(u1)
+         //const salt=bcrypt.genSalt(10);
+         u1.password=bcrypt.hashSync(u1.password,10)
+         console.log(u1)
          console.error("no user found in db");
        // res.status(401).send("user not found in db");
         u1.save((err,data)=>{
@@ -83,7 +95,7 @@ router.post('/submit',(req,res)=>{
             console.log(data)
             res.status(201).json({
               ...data,
-              token: generateToken(u1)
+              token: generateToken(u1,false)
             })
 
           }
@@ -94,14 +106,27 @@ router.post('/submit',(req,res)=>{
   
 })
 
-const generateToken = (user)=>{
+const generateToken = (user,rememberMe)=>{
   const secretKey = "abc123"
+  if(rememberMe)
   return jwt.sign({user},secretKey,{expiresIn:"30d"})
+  else
+  return jwt.sign({user},secretKey,{expiresIn:"6h"})
 }
 
+const generateUUID =()=>{
+  const uuid = UUID.v4()
+  
+     return(
+      uuid.toString()
+     );
+}
+
+
 router.post('/login',(req,res)=>{
-  console.log(req.body.User)
   var user=req.body.User
+  const rememberMe = user.rememberMe
+    console.log(rememberMe)
   /*User.findOne({$and:[{email:req.body.User.email},{password:req.body.User.password}]},function (err, docs) {
     if (err){
         console.log(err)
@@ -118,16 +143,26 @@ router.post('/login',(req,res)=>{
 });*/
 
    console.log(user)
-   User.findOne({$and:[{email:user.email},{password:user.password}]})
+   User.findOne({email:user.email}).select({password:1,name:1,surname:1,email:1,mobile:1,
+                 projects:1,friends:1,skillsets:1,experience:1,description:1})//Add rest of the fields
    .then((docs)=>{
     console.log("Result : ", docs);
     if(docs)//!=null)
    {
-      console.log("Login Successfull.....")
-      res.send({
-        ...docs,
-        token: generateToken(docs)
-      })
+      if(bcrypt.compareSync(user.password,docs.password))
+      {
+        console.log("Login Successfull.....")
+        res.send({
+          ...docs,
+          token: generateToken(docs,rememberMe)
+        })
+      }
+      else
+      {
+        console.log("Login Failed...")
+        res.status(401).send("Incorrect Email or Password...")
+      }
+     
    }
    }).catch((error)=>{
     console.log(error)

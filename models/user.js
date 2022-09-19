@@ -6,8 +6,8 @@ const User=new mongoose.Schema({
         type:String,
         unique:true,
         null:false,
-        minLength:[6],
-        maxLength:[6],
+        minLength:[36],
+        maxLength:[36],
         required:true,
     },
 
@@ -37,7 +37,7 @@ const User=new mongoose.Schema({
         type:String,
         required:[true,"Please enter your name"],
         minLength:[8,"Password must be greater than 8 characters"],
-        maxLength:[36,"Password should not be greater than 36 characters"],
+       // maxLength:[36,"Password should not be greater than 36 characters"],
         select:false,
     },
 
@@ -78,6 +78,13 @@ const User=new mongoose.Schema({
         {
             type:String,
             required:[true,"Please enter your name"],
+        },
+
+        admin:
+        {
+            type:Boolean,
+            required:true,
+            default:false
         },
 
    
